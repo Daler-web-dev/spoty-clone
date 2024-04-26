@@ -5,19 +5,33 @@ import { BiLibrary } from "react-icons/bi";
 import ProfileMenu from "../components/ProfileMenu";
 import { Link, Outlet } from "react-router-dom";
 import { useEffect } from "react";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+
 
 export default function Layout() {
-    const token = location.hash.split('=')[1].split('&')[0]
+    const [token, setToken] = useState('')
+    const navigate = useNavigate()
+
 
     useEffect(() => {
-        fetch('https://api.spotify.com/v1/artists?ids=2CIMQHirSU0MQqyYHq0eOx%2C57dN52uHvrHOxijzpIgu3E%2C1vCWHaC5f2uS3yhpwWbIA6', {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        })
-            .then(res => res.json())
-            .then(res => console.log(res))
-    })
+        let token = localStorage.getItem('token')
+        let hash = location.hash
+
+        if (!token && hash) {
+            token = hash.split('=')[1].split('&')[0]
+
+            location.href = ""
+            localStorage.setItem('token', token)
+        }
+
+        setToken(token)
+    }, [])
+
+
+    if (!token) {
+        navigate('/login')
+    }
 
     return (
         <>
@@ -57,7 +71,9 @@ export default function Layout() {
                     </ul>
                 </nav>
             </aside>
-            <Outlet />
+            <main className="pl-[345px]" >
+                <Outlet />
+            </main>
             <div></div>
         </>
     )
